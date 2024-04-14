@@ -41,7 +41,7 @@ class ModelTrainer:
                 "accuracy": accuracy
         }
 
-    def train(self, msgs):
+    def train(self, msgs, learning_rate = 2e-5, per_device_train_batch_size = 16, per_device_eval_batch_size = 16, num_train_epochs = 3, weight_decay = 0.01, eval_steps = 20, save_steps = 800):
         tokenized_tweets = msgs.map(self.preprocess_function, batched=True)
 
         model = AutoModelForSequenceClassification.from_pretrained(
@@ -60,15 +60,15 @@ class ModelTrainer:
         training_args = TrainingArguments(
             output_dir=self.model_path,
             report_to="wandb",
-            learning_rate=2e-5,
-            per_device_train_batch_size=16,
-            per_device_eval_batch_size=16,
-            num_train_epochs=3,
-            weight_decay=0.01,
-            evaluation_strategy="steps",
-            save_strategy="steps",
-            eval_steps=20,
-            save_steps = 100,
+            learning_rate=learning_rate,
+            per_device_train_batch_size = per_device_train_batch_size,
+            per_device_eval_batch_size = per_device_eval_batch_size,
+            num_train_epochs = num_train_epochs,
+            weight_decay = weight_decay,
+            evaluation_strategy = "steps",
+            save_strategy = "steps",
+            eval_steps= eval_steps,
+            save_steps = save_steps,
             load_best_model_at_end=True,
             push_to_hub=False,
         )
