@@ -3,6 +3,8 @@ from trainer_module import ModelTrainer
 from data_module import DataLoader
 from transformers import pipeline
 
+PRETRAINED = False
+
 print("Loading the dataset...")
 #Loading the dataset.
 loader = DataLoader("spam.csv")
@@ -28,9 +30,10 @@ model_paths = ["roberta-base", "distilbert-base", "albert-base", "bert-base-unca
 print("Training the models...")
 #Training the models.
 #If you have already trained the models, you can skip this step.
-for i in range(len(models)):
-    model = ModelTrainer(models[i], wandb_path="autonomous-agents", model_path=model_paths[i])
-    model.train(msgs)
+if not PRETRAINED:
+    for i in range(len(models)):
+        model = ModelTrainer(models[i], wandb_path="autonomous-agents", model_path=model_paths[i])
+        model.train(msgs)
 
 print("A simple test of the trained models...")
 
@@ -41,10 +44,13 @@ custom_spam_messages = [
     "Earn $1000/week working from home. Reply 'INFO' for more details."]
 
 #Testing inference on custom spam messages.
-for model in models:
+for i in range(len(models)):
     print("-----------------------------------")
-    print("Model:", model)
-    detector = pipeline("sentiment-analysis", model=model + "/checkpoint-800")
+    print("Model:", models[i])
+    if PRETRAINED:
+        detector = pipeline("sentiment-analysis", model = "pretrained/" + model_paths[i] + "/checkpoint-800")
+    else:
+        detector = pipeline("sentiment-analysis", model = model_paths[i] + "/checkpoint-800")
     for text in custom_spam_messages:
        print(detector(text))
 
